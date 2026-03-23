@@ -1,54 +1,56 @@
-import flet as ft
 from core.controller import BaseController
 from core.auth.auth_service import Auth, Hash
 from app.models.User import User
+from app.views.layouts.auth import AuthLayout
+from app.views.pages.login import LoginPage
+from app.views.pages.register import RegisterPage
+from app.services.notification_service import NotificationService
 
 class AuthController(BaseController):
-    def show_login(self):
-        self.email_input = ft.TextField(label="Email")
-        self.password_input = ft.TextField(label="Password", password=True, can_reveal_password=True)
-        
-        return self.render([
-            ft.Text("Login", size=30),
-            self.email_input,
-            self.password_input,
-            ft.ElevatedButton("Login", on_click=self.login),
-            ft.TextButton("Register", on_click=lambda _: self.page.go("/register"))
-        ])
+    def index(self):
+        # If logged in, go to dashboard, else go to login
+        if Auth.check(self.page):
+            return self.redirect("/dashboard")
+        return self.redirect("/login")
 
-    def login(self, e):
-        user = User.where("email", self.email_input.value).first()
-        if user and Hash.check(self.password_input.value, user.password):
+    def show_login(self):
+        view_content = LoginPage.render(
+            self.page, 
+            on_login=self.handle_login,
+            on_register_click=lambda _: self.page.go("/register")
+        )
+        return self.render(view_content, title="Pyletix - Login", layout=AuthLayout)
+
+    def handle_login(self, email, password):
+        user = User.where("email", email).first()
+        if user and Hash.check(password, user.password):
             Auth.login(user, self.page)
             self.page.go("/")
         else:
-            self.page.snack_bar = ft.SnackBar(ft.Text("Invalid credentials"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            NotificationService(self.page).toast("Invalid email or password")
 
     def show_register(self):
-        self.reg_name = ft.TextField(label="Name")
-        self.reg_email = ft.TextField(label="Email")
-        self.reg_pass = ft.TextField(label="Password", password=True)
-        
-        return self.render([
-            ft.Text("Register", size=30),
-            self.reg_name,
-            self.reg_email,
-            self.reg_pass,
-            ft.ElevatedButton("Register", on_click=self.register)
-        ])
+        view_content = RegisterPage.render(
+            self.page,
+            on_register=self.handle_register,
+            on_login_click=lambda _: self.page.go("/login")
+        )
+        return self.render(view_content, title="Pyletix - Register", layout=AuthLayout)
 
-    def register(self, e):
-        hashed_pass = Hash.make(self.reg_pass.value)
+    def handle_register(self, name, email, password):
+        if not name or not email or not password:
+            NotificationService(self.page).toast("Please fill all fields")
+            return
+
+        hashed_pass = Hash.make(password)
         user = User.create(
-            name=self.reg_name.value,
-            email=self.reg_email.value,
+            name=name,
+            email=email,
             password=hashed_pass
         )
         Auth.login(user, self.page)
         self.page.go("/")
 
-    def logout(self, e):
+    def logout(self, e=None):
         Auth.logout(self.page)
         self.page.go("/login")

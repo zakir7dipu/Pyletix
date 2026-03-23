@@ -6,10 +6,13 @@ from core.router.response import Response
 
 def requires_auth(func):
     @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self, request=None, *args, **kwargs):
         if not Auth.check(self.page):
             self.page.go("/login")
             return None
+        # Preserve original signature behavior for Router introspection
+        if request is not None:
+            return func(self, request, *args, **kwargs)
         return func(self, *args, **kwargs)
     return wrapper
 
@@ -31,10 +34,13 @@ def requires_jwt(func):
 def requires_role(role_slug):
     def decorator(func):
         @functools.wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self, request=None, *args, **kwargs):
             user = Auth.user(self.page)
             if not user or not user.has_role(role_slug):
                 return ft.View(self.page.route, [ft.Text("Unauthorized: Role required")])
+            
+            if request is not None:
+                return func(self, request, *args, **kwargs)
             return func(self, *args, **kwargs)
         return wrapper
     return decorator
@@ -42,10 +48,13 @@ def requires_role(role_slug):
 def requires_permission(permission_slug):
     def decorator(func):
         @functools.wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self, request=None, *args, **kwargs):
             user = Auth.user(self.page)
             if not user or not user.has_permission(permission_slug):
                 return ft.View(self.page.route, [ft.Text("Unauthorized: Permission required")])
+            
+            if request is not None:
+                return func(self, request, *args, **kwargs)
             return func(self, *args, **kwargs)
         return wrapper
     return decorator

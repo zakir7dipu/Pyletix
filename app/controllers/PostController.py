@@ -14,14 +14,14 @@ class PostController(BaseController):
                 ft.ListTile(
                     title=ft.Text(post.title),
                     subtitle=ft.Text(f"By {post.user.name} • {DateUtil.human_readable(post.created_at)}"),
-                    trailing=ft.IconButton(ft.icons.DELETE, on_click=lambda _: self.delete(post.id))
+                    trailing=ft.IconButton("delete", on_click=lambda _: self.delete(post.id))
                 )
             )
             
         return self.render([
             ft.Text("Community Posts", size=30),
             ft.Column(post_controls),
-            ft.FloatingActionButton(icon=ft.icons.ADD, on_click=lambda _: self.page.go("/posts/create"))
+            ft.FloatingActionButton(icon="add", on_click=lambda _: self.page.go("/posts/create"))
         ], title="Posts")
 
     def create(self, request):

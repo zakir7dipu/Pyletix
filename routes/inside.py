@@ -1,4 +1,5 @@
 def register(router):
+    router.get("/", "AuthController@index")
     router.get("/login", "AuthController@show_login")
     router.get("/register", "AuthController@show_register")
     router.get("/logout", "AuthController@logout")

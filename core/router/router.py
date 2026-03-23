@@ -11,6 +11,16 @@ class Router:
         self.middlewares = []
         self._current_prefix = ""
         self.page.on_route_change = self._handle_route_change
+        self.page.on_view_pop = self._handle_view_pop
+
+    def _handle_view_pop(self, e):
+        if len(self.page.views) > 1:
+            self.page.views.pop()
+            top_view = self.page.views[-1]
+            self.page.go(top_view.route)
+        else:
+            # If only one view remains, don't pop (prevent black screen)
+            pass
 
     def get(self, path, handler):
         self._add_route("GET", path, handler)
@@ -34,6 +44,10 @@ class Router:
         path = e.route.split("?")[0]
         method = "GET" # Simulation
         
+        # Avoid duplicate views for the same route during back/forward
+        if self.page.views and self.page.views[-1].route == e.route:
+            return
+
         handler = None
         params = {}
         
@@ -77,18 +91,28 @@ class Router:
         except Exception as ex:
             import traceback
             traceback.print_exc()
-            return Response.view([ft.Text(f"Error: {ex}")])
+            return Response.view([ft.Container(content=ft.Text(f"System Error: {ex}", color="red"), padding=50)])
 
     def _handle_response(self, response):
         if not response: return
 
         if response.content["type"] == "view":
-            self.page.views.append(ft.View(
+            appbar = response.content.get("appbar")
+            if not appbar:
+                appbar = ft.AppBar(
+                    title=ft.Text(response.content.get("title", "Pyletix")),
+                    bgcolor="surfacevariant"
+                )
+            
+            # Stable view stack management with theme-awareness
+            self.page.views = [ft.View(
                 route=self.page.route,
-                controls=response.content["controls"],
-                appbar=ft.AppBar(title=ft.Text(response.content["title"] or "Zak Flet"))
-            ))
+                controls=response.content["controls"] if isinstance(response.content["controls"], list) else [response.content["controls"]],
+                appbar=appbar,
+                padding=20,
+                bgcolor=None # Enable theme-aware backgrounds
+            )]
         elif response.content["type"] == "redirect":
-            self.page.go(response.content["path"])
+            self.page.push_route(response.content["path"])
         elif response.content["type"] == "json":
             self.page.views.append(ft.View(self.page.route, [ft.Text(json.dumps(response.content["data"]))]))

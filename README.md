@@ -67,8 +67,12 @@ app/
   controllers/    # Business logic handlers
   models/         # Database models & relationships
   views/          
-    components/   # Reusable UI elements (Hero, Card, etc.)
-  services/       # Notification, Mail, PDF, and external services
+    layouts/      # App-wide templates (Main, Auth)
+    pages/        # Full-screen view definitions
+    components/   # Reusable UI elements (Button, Card, Table)
+    partials/     # Structural parts (Header, Sidebar, Footer)
+    ui/           # Low-level UI utilities (Loaders, Validation)
+  services/       # Theme, Notification, Mail, PDF services
   middlewares/    # Custom application middleware
 core/
   auth/           # Auth engines & JWT
@@ -342,30 +346,24 @@ notifications.confirm(
 ---
 
 ## 16. UI Components
-The framework includes a set of pre-built, styled components in `app/views/components`.
+The framework includes a comprehensive library of atomic UI components in `app/views/components`.
 
-### Hero Section
-A prominent header for pages.
-```python
-from app.views.components.base_ui import Hero
+### Reusable Elements
+- **FlexButton**: A modern, responsive button with built-in loading states.
+- **Input**: Styled text fields with icon support and validation hooks.
+- **Card**: Elevated container for grouping information.
+- **Table**: Dynamic data tables with heading and row support.
+- **Modal**: Managed popups for alerts and confirmations.
+- **Navbar & Sidebar**: Structural components for main application navigation.
 
-hero = Hero(
-    title="Welcome to Pyletix",
-    subtitle="The ultimate Flet MVC framework",
-    color=ft.colors.BLUE_800
-)
-```
+### Structural Sections (Partials)
+- **Header**: Top navigation bar with branding and theme toggle.
+- **Sidebar**: Mobile-friendly navigation drawer.
+- **Footer**: Constant site footer.
 
-### Card
-A versatile container for content.
-```python
-from app.views.components.base_ui import Card
-
-card = Card(
-    title="Profile Info",
-    content=ft.Text("User details go here...")
-)
-```
+### UI Utilities
+- **Loader**: Centered activity indicators.
+- **Validation**: Helper for displaying inline form errors.
 
 ---
 
@@ -421,5 +419,49 @@ A full `Post` CRUD module is included by default.
 
 ---
 
-## 22. License
+## 22. View Architecture
+**Pyletix** implements a structured View system inspired by modern component-based frameworks.
+
+### The Rendering Pipeline
+1. **Controller**: Receives the request and calls `self.render(content, layout)`.
+2. **Layout**: A base template (e.g., `MainLayout`) that defines the scaffolding (Navbar, Sidebar).
+3. **Page**: A specific view (e.g., `DashboardPage`) that is injected into the Layout's content slot.
+4. **Components**: The building blocks (Buttons, Inputs) used inside Pages.
+
+### Custom Layout Example
+```python
+from app.views.layouts.base import BaseLayout
+
+class CustomLayout(BaseLayout):
+    def render(self, content):
+        return [
+            ft.AppBar(title=ft.Text(self.title)),
+            ft.Container(content=content, expand=True)
+        ]
+```
+
+---
+
+## 23. Theme Management System
+Pyletix includes a native, persistent Dark/Light mode system managed via `ThemeService`.
+
+### Features
+- **Persistence**: User theme preference is saved in the session store.
+- **Automatic Scaling**: Standard components use "surface" and "on_surface" tokens to adjust automatically.
+- **Toggle**: Integrated button in the `Navbar` for seamless switching.
+
+### Manual Theme Access
+```python
+from app.services.theme_service import ThemeService
+
+# Toggle theme programmatically
+ThemeService.toggle(page)
+
+# Load saved theme (called automatically in main.py)
+ThemeService.load(page)
+```
+
+---
+
+## 24. License
 The **Pyletix** Framework is open-sourced software licensed under the **MIT license**.

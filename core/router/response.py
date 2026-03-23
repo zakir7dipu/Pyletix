@@ -7,8 +7,8 @@ class Response:
         self.status = status
 
     @classmethod
-    def view(cls, controls, title=None):
-        return cls(content={"type": "view", "controls": controls, "title": title})
+    def view(cls, controls, title=None, appbar=None):
+        return cls(content={"type": "view", "controls": controls, "title": title, "appbar": appbar})
 
     @classmethod
     def json(cls, data):

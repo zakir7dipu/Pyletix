@@ -12,8 +12,8 @@ class UserController(BaseController):
             user_controls.append(ft.ListTile(title=ft.Text(user.name)))
 
         return self.render([
-            ft.Text("User List", size=25, weight=ft.FontWeight.BOLD),
-            ft.Column(user_controls, scroll=ft.ScrollMode.AUTO),
+            ft.Text("User List", size=25, weight="bold"),
+            ft.Column(user_controls, scroll="auto"),
             ft.ElevatedButton("Add Sample User", on_click=self.add_user)
         ])
 

@@ -4,7 +4,9 @@ class NotificationService:
     def __init__(self, page: ft.Page):
         self.page = page
 
-    def toast(self, message, bgcolor=ft.colors.SURFACE_VARIANT):
+    def toast(self, message, bgcolor=None):
+        if bgcolor is None:
+            bgcolor = "surfacevariant"
         self.page.snack_bar = ft.SnackBar(ft.Text(message), bgcolor=bgcolor)
         self.page.snack_bar.open = True
         self.page.update()
@@ -21,7 +23,7 @@ class NotificationService:
             actions=[
                 ft.TextButton("OK", on_click=close_dlg),
             ],
-            actions_alignment=ft.MainAxisAlignment.END,
+            actions_alignment="end",
         )
         self.page.dialog = dlg_modal
         dlg_modal.open = True
