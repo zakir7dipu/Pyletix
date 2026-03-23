@@ -18,7 +18,7 @@ class Auth:
     @classmethod
     def login(cls, user, page, remember=False):
         cls._user = user
-        page.session.set("user_id", user.id)
+        page.session.store.set("user_id", user.id)
         if remember:
             # Token logic for remember me
             token = secrets.token_hex(32)
@@ -30,7 +30,7 @@ class Auth:
         if cls._user:
             return cls._user
         
-        user_id = page.session.get("user_id")
+        user_id = page.session.store.get("user_id")
         if user_id:
             from app.models.User import User
             cls._user = User.find(user_id)
@@ -40,7 +40,7 @@ class Auth:
     @classmethod
     def logout(cls, page):
         cls._user = None
-        page.session.remove("user_id")
+        page.session.store.remove("user_id")
 
     @classmethod
     def check(cls, page):

@@ -1,11 +1,11 @@
-# Zak Flet MVC Framework
+# Pyletix MVC Framework
 
-Zak Flet is a professional, **Laravel-inspired MVC framework** built for Python using **Flet** for the UI and **SQLite** for data persistence. It brings the power of Rapid Application Development (RAD) to the Flet ecosystem, providing developers with an expressive, clean, and batteries-included foundation for building cross-platform applications.
+**Pyletix** is a professional, **Laravel-inspired MVC framework** built for Python using **Flet** for the UI and **SQLite** for data persistence. It brings the power of Rapid Application Development (RAD) to the Flet ecosystem, providing developers with an expressive, clean, and batteries-included foundation for building cross-platform applications.
 
 ---
 
 ## 1. Project Overview
-Zak Flet is designed for developers who love the architectural elegance of Laravel or Django but want to leverage the modern, reactive UI capabilities of Flet. Its philosophy is based on "Developer Happiness":
+**Pyletix** is designed for developers who love the architectural elegance of Laravel or Django but want to leverage the modern, reactive UI capabilities of Flet. Its philosophy is based on "Developer Happiness":
 - **Convention over Configuration**: Sensible defaults that get you started instantly.
 - **Architectural Integrity**: A strict MVC pattern that keeps codebases maintainable.
 - **Unified Experience**: One language (Python) for both backend logic and frontend UI.
@@ -39,8 +39,8 @@ Zak Flet is designed for developers who love the architectural elegance of Larav
 ### Step-by-Step
 1. **Clone the project:**
    ```bash
-   git clone https://github.com/your-repo/zak-flet.git
-   cd zak-flet
+   git clone https://github.com/zakir7dipu/Pyletix.git
+   cd Pyletix
    ```
 2. **Install dependencies:**
    ```bash
@@ -66,8 +66,9 @@ Zak Flet is designed for developers who love the architectural elegance of Larav
 app/
   controllers/    # Business logic handlers
   models/         # Database models & relationships
-  views/          # UI layouts & components
-  services/       # Mail, PDF, and external services
+  views/          
+    components/   # Reusable UI elements (Hero, Card, etc.)
+  services/       # Notification, Mail, PDF, and external services
   middlewares/    # Custom application middleware
 core/
   auth/           # Auth engines & JWT
@@ -76,6 +77,9 @@ core/
   router/         # Route matching & Request/Response
   storage/        # File system facade
   utils/          # Date & Validation helpers
+routes/
+  inside.py       # Main application routes (Dashboard, etc.)
+  api.py          # REST API route definitions
 migrations/       # Database versioning files
 storage/          # Database files & media uploads
 manage.py         # Primary developer CLI
@@ -85,11 +89,11 @@ main.py           # App entry & Route registry
 ---
 
 ## 5. Configuration (.env)
-Zak Flet uses a `.env` file for all environment-specific settings.
+**Pyletix** uses a `.env` file for all environment-specific settings.
 
 **Sample .env:**
 ```ini
-APP_NAME="Zak Flet App"
+APP_NAME="Pyletix App"
 APP_ENV=local
 APP_KEY=base64:random_string
 DB_CONNECTION=sqlite
@@ -125,6 +129,10 @@ MAIL_PASSWORD=null
 - **Rollback Last Batch:**
   ```bash
   python manage.py migrate:rollback
+  ```
+- **Run Seeders:**
+  ```bash
+  python manage.py db:seed
   ```
 
 ---
@@ -180,10 +188,11 @@ def commentable(self):
 
 ### Defining Routes
 ```python
-# main.py
-router.get("/posts", "PostController@index")
-router.get("/posts/:id", "PostController@show")
-router.post("/posts", "PostController@store")
+# routes/inside.py
+def register(router):
+    router.get("/posts", "PostController@index")
+    router.get("/posts/:id", "PostController@show")
+    router.post("/posts", "PostController@store")
 ```
 
 ### Controller Example
@@ -237,8 +246,10 @@ def delete_user(self, request):
 
 ### API Routes
 ```python
-router.prefix("/api/v1")
-router.get("/products", "ProductController@api_index")
+# routes/api.py
+def register(router):
+    router.prefix("/api/v1")
+    router.get("/products", "ProductController@api_index")
 ```
 
 ### JWT Auth
@@ -306,13 +317,54 @@ PDFGenerator.generate(
 
 ## 15. Notifications System
 
-### Flash & Toasts
-```python
-# Show a toast
-self.notify.toast("Saved successfully!")
+**Pyletix** provides a `NotificationService` for consistent user feedback.
 
-# Show an alert dialog
-self.notify.alert("Warning", "Are you sure?")
+### Usage
+```python
+from app.services.notification_service import NotificationService
+
+notifications = NotificationService(self.page)
+
+# Show a snackbar toast
+notifications.toast("Saved successfully!", bgcolor=ft.colors.GREEN)
+
+# Show a modal alert
+notifications.alert("Warning", "This action is irreversible.")
+
+# Show a confirmation dialog
+notifications.confirm(
+    "Delete Post", 
+    "Are you sure?", 
+    on_confirm=lambda: print("Confirmed!")
+)
+```
+
+---
+
+## 16. UI Components
+The framework includes a set of pre-built, styled components in `app/views/components`.
+
+### Hero Section
+A prominent header for pages.
+```python
+from app.views.components.base_ui import Hero
+
+hero = Hero(
+    title="Welcome to Pyletix",
+    subtitle="The ultimate Flet MVC framework",
+    color=ft.colors.BLUE_800
+)
+```
+
+### Card
+A versatile container for content.
+```python
+from app.views.components.base_ui import Card
+
+card = Card(
+    title="Profile Info",
+    content=ft.Text("User details go here...")
+)
 ```
 
 ---
@@ -370,4 +422,4 @@ A full `Post` CRUD module is included by default.
 ---
 
 ## 22. License
-The Zak Flet Framework is open-sourced software licensed under the **MIT license**.
+The **Pyletix** Framework is open-sourced software licensed under the **MIT license**.
